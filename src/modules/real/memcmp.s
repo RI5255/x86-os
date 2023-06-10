@@ -3,12 +3,21 @@
 ; repe(repeat if equal)はcx-1!=0か、ZF!=0のときリピートする。
 
 memcmp:
+    push bp
+    mov bp, sp 
+    mov di, [bp + 4]
+    mov si, [bp + 6]
+    mov cx, [bp + 8]
     cld
     repe cmpsb
-    jnz .L0
-    mov ax, 1
-    ret
+    jnz .LF
+    mov ax, 0
+    jmp .LE
 
-.L0:
+.LF:
     mov ax, -1
+
+.LE:    
+    mov sp, bp 
+    pop bp 
     ret
