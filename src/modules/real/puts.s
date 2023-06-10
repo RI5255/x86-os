@@ -1,4 +1,4 @@
-; puts(char *s)
+; void puts(char *s)
 ; lodsb命令はsiレジスタで指定されたアドレスから1bye読んでalにセットし、DFに応じてsiを加減算する。
 
 puts:

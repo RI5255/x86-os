@@ -1,4 +1,4 @@
-; putc(char c);
+; void putc(char c);
 
 putc:
     push bp 
