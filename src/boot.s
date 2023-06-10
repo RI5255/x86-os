@@ -18,14 +18,15 @@ ipl:
     mov sp, BOOT_LOAD
     sti                     ; 割り込みを有効化
     mov [BOOT.DRIVE], dl    ; ブートドライブを保存
-    cdecl putc, 'A'
+    cdecl puts, .str
     jmp $                   ; 無限ループ
 
+.str db "Booting...", 0x0A, 0x0D, 0
 ALIGN 2, db 0               ; 0x90の代わりに0x00で埋める。
 BOOT:
     .DRIVE: dw 0
 
-%include "./modules/real/putc.s"
+%include "./modules/real/puts.s"
 
     times 510 - ($ - $$) db 0x90
     db 0x55, 0xAA
