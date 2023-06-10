@@ -18,29 +18,8 @@ ipl:
     mov sp, BOOT_LOAD
     sti                     ; 割り込みを有効化
     mov [BOOT.DRIVE], dl    ; ブートドライブを保存
-    cdecl puts, .s0       
-    
-    cdecl itoa, 8086, .s1, 8, 10, 0b0001
-    cdecl puts, .s1
-
-    cdecl itoa, 8086, .s1, 8, 10, 0b0011
-    cdecl puts, .s1
-
-    cdecl itoa, -8086, .s1, 8, 10, 0b0001
-    cdecl puts, .s1
-
-    cdecl itoa, -1, .s1, 8, 10, 0b0001
-    cdecl puts, .s1
-
-    cdecl itoa, -1, .s1, 8, 10, 0b0000
-    cdecl puts, .s1
-
-    cdecl itoa, -1, .s1, 8, 16, 0b0000
-    cdecl puts, .s1
-
-    cdecl itoa, 12, .s1, 8, 2, 0b0100
-    cdecl puts, .s1
-    jmp $                   ; 無限ループ
+    cdecl puts, .s0
+    cdecl reboot
 
 .s0     db "Booting...", 0x0A, 0x0D, 0
 .s1     db "--------", 0x0A, 0x0D, 0
@@ -51,6 +30,7 @@ BOOT:
 
 %include "./modules/real/puts.s"
 %include "./modules/real/itoa.s"
+%include "./modules/real/reboot.s"
 
     times 510 - ($ - $$) db 0x90
     db 0x55, 0xAA
