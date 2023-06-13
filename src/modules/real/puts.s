@@ -5,6 +5,7 @@ puts:
     push bp 
     mov bp, sp 
     push bx
+    push si
     mov si, [bp + 4]
     mov ah, 0x0E        ; int 0x10(ah=0x0E)はテレタイプ式の文字列出力。
     mov bh, 0           ; ページ番号
@@ -19,6 +20,7 @@ puts:
     jmp .loop
 
 .end:
+    pop si
     pop bx 
     mov sp, bp 
     pop bp 

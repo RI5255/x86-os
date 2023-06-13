@@ -7,6 +7,7 @@ read_chs:
     push 3                      ; リトライ回数 
     
     push bx
+    push si
     
     mov si, [bp + 4] ; 構造体のアドレス
     
@@ -37,7 +38,7 @@ read_chs:
 
 .L2: 
     mov ah, 0                   ; ahにはステータスコードが入っているが破棄。(返り値は読み込んだセクタ数になる。)
-
+    pop si
     pop bx
     mov sp, bp 
     pop bp 

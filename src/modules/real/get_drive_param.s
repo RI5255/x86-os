@@ -9,13 +9,10 @@ get_drive_param:
     mov bp, sp 
     
     push bx 
+    push si
 
     mov si, [bp + 4]
     
-    mov ax, 0
-    mov es, ax
-    mov di, ax 
-
     mov ah, 8
     mov dl, [si + drive.no]
     int 0x13
@@ -40,6 +37,7 @@ get_drive_param:
     mov ax, 0
 
 .L1:
+    pop si 
     pop bx 
     mov sp, bp 
     pop bp 

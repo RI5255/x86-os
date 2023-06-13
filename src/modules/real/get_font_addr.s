@@ -6,6 +6,7 @@ get_font_addr:
     push bp 
     mov bp, sp 
     push bx
+    push di
     push bp
     mov di, [bp + 4]
     mov ax, 0x1130
@@ -14,6 +15,7 @@ get_font_addr:
     mov [di], es        ; セグメント
     mov [di + 2], bp    ; オフセット
     pop bp
+    pop di
     pop bx
     mov sp, bp 
     pop bp 

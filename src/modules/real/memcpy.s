@@ -5,11 +5,15 @@
 memcpy:
     push bp 
     mov bp, sp
+    push di 
+    push si
     mov di, [bp + 4]
     mov si, [bp + 6]
     mov cx, [bp + 8]
     cld
     rep movsb
+    pop si 
+    pop di
     mov sp, bp
     pop bp
     ret

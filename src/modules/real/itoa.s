@@ -9,6 +9,8 @@ itoa:
     push bp 
     mov bp, sp 
     push bx
+    push di
+    push si
     mov ax, [bp + 4]    ; 変換する数値
     mov si, [bp + 6]    ; 変換結果を書き込むバッファ
     mov cx, [bp + 8]    ; バッファのサイズ    
@@ -63,6 +65,8 @@ itoa:
     rep stosb
 
 .L6:
+    pop si 
+    pop di
     pop bx 
     mov bp, sp 
     pop bp 

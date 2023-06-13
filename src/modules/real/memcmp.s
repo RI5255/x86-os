@@ -4,7 +4,9 @@
 
 memcmp:
     push bp
-    mov bp, sp 
+    mov bp, sp
+    push di 
+    push si 
     mov di, [bp + 4]
     mov si, [bp + 6]
     mov cx, [bp + 8]
@@ -18,6 +20,8 @@ memcmp:
     mov ax, -1
 
 .LE:    
+    pop si 
+    pop di
     mov sp, bp 
     pop bp 
     ret
