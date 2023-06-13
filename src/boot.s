@@ -53,10 +53,14 @@ BOOT:
 FONT:
 .seg:   dw 0
 .off:   dw 0
+ACPI_DATA:
+.addr:  dd 0
+.len:   dd 0
 
 %include "./modules/real/itoa.s"
 %include "./modules/real/get_drive_param.s"
 %include "./modules/real/get_font_addr.s"
+%include "./modules/real/get_mem_info.s"
 
 stage_2:
     cdecl puts, .s0
@@ -102,7 +106,18 @@ stage_3:
     cdecl itoa, word [FONT.off], .p2, 4, 16, 0b0100
     cdecl puts, .s1 
 
+    ; メモリマップの取得と表示
+    cdecl get_mem_info
+    mov eax, [ACPI_DATA.addr]
+    cmp eax, 0
+    je .L0 
+    cdecl itoa, ax, .p4, 4, 16, 0b0100
+    shr eax, 16
+    cdecl itoa, ax, .p3, 4, 16, 0b0100
+    cdecl puts, .s2 
+
     ; 処理の終わり
+.L0:
     jmp $
 
     ; データ
@@ -111,6 +126,9 @@ stage_3:
 .p1:    db "XXXX:"
 .p2:    db "XXXX", 0xA, 0xD, 0
         db 0xA, 0xD, 0
+.s2     db " ACPI data="
+.p3     db "ZZZZ"
+.p4     db "ZZZZ", 0x0A, 0x0D, 0
 
     ; padding
     times BOOT_SIZE - ($ - $$) db 0
