@@ -61,6 +61,7 @@ ACPI_DATA:
 %include "./modules/real/get_drive_param.s"
 %include "./modules/real/get_font_addr.s"
 %include "./modules/real/get_mem_info.s"
+%include "./modules/real/kbc.s"
 
 stage_2:
     cdecl puts, .s0
@@ -116,9 +117,9 @@ stage_3:
     cdecl itoa, ax, .p3, 4, 16, 0b0100
     cdecl puts, .s2 
 
-    ; 処理の終わり
+    ; 次のステージにジャンプ
 .L0:
-    jmp $
+    jmp stage_4
 
     ; データ
 .s0 db "3rd stage...", 0x0A, 0x0D, 0
@@ -130,6 +131,27 @@ stage_3:
 .p3     db "ZZZZ"
 .p4     db "ZZZZ", 0x0A, 0x0D, 0
 
+stage_4:
+    cdecl puts, .s0
+    cli                         ; 割り込み無効化
+    cdecl KBC_Cmd_Write, 0xad   ; キーボード無効化
+    cdecl KBC_Cmd_Write, 0xd0   ; 出力ポート読み出しコマンドを発行
+    cdecl KBC_Data_Read, .key   ; 読み出し結果をバッファに保存
+    mov bl, [.key]
+    or bl, 0x2
+    cdecl KBC_Cmd_Write, 0xd1   ; 出力ポート書き込みコマンドを発行
+    cdecl KBC_Data_Write, bx    ; A20 Gateを有効化
+    cdecl KBC_Cmd_Write, 0xae   ; キーボード有効化
+    sti                         ; 割り込みを有効化
+    cdecl puts, .s1
+    
+    ; 処理の終わり
+    jmp $
+    ; データ
+.s0:	db	"4th stage...", 0x0A, 0x0D, 0
+.s1:	db	" A20 Gate Enabled.", 0x0A, 0x0D, 0
+
+.key:	dw	0
     ; padding
     times BOOT_SIZE - ($ - $$) db 0
 
