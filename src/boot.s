@@ -144,14 +144,59 @@ stage_4:
     cdecl KBC_Cmd_Write, 0xae   ; キーボード有効化
     sti                         ; 割り込みを有効化
     cdecl puts, .s1
-    
+
+    ; LEDの点灯制御
+    cdecl puts, .s2
+    mov bx, 0                   ; LEDの点灯状態を管理する
+.L0:
+    mov ah, 0
+    int 0x16                    ; キーコードの取得
+    cmp al, '1'                 ; alにはアスキーコードが入る
+    jb  .L3                     ; '1'より小さければ終了
+    cmp al, '3'         
+    ja .L3                      ; '3'より大きければ終了
+
+    mov cl, al                  ; ascii codeは'1'(0x31)~'3'(0x33)まで
+    dec cl  
+    and cl, 0x3                 ; '1' -> 0, '2' -> 1, '3' -> 2
+    mov ax, 1
+    shl ax, cl                  ; フラグを立てる
+    xor bx, ax  
+
+    ; LED点灯コマンドを送信
+    cli
+    cdecl KBC_Cmd_Write, 0xad   ; キーボードを無効化
+    cdecl KBC_Data_Read, 0xed   ; LEDコマンドをキーボードに送信
+    cdecl KBC_Data_Read, .key   ; 応答をバッファに保存
+    cmp [.key], byte 0xfa       ; キーボードがコマンドに対応している場合は0xfaが返る
+    jne .L1                     ; 対応してい無い場合はメッセージを出力して終了
+    cdecl KBC_Data_Write, bx    ; LEDの表示パターンを書き込む
+    jmp .L2
+
+.L1:    
+    cdecl itoa, word [.key], .e1, 2, 16, 0b0100
+    cdecl puts, .e0
+
+.L2:
+    cdecl KBC_Cmd_Write, 0xae   ; キーボード有効化
+    sti
+    jmp .L0
+
+.L3:
+    cdecl puts, .s3
     ; 処理の終わり
     jmp $
+
     ; データ
 .s0:	db	"4th stage...", 0x0A, 0x0D, 0
 .s1:	db	" A20 Gate Enabled.", 0x0A, 0x0D, 0
+.s2:	db	" Keyboard LED Test...", 0
+.s3:	db	" (done)", 0x0A, 0x0D, 0
+.e0:	db	"["
+.e1:	db	"ZZ]", 0
 
 .key:	dw	0
+    
     ; padding
     times BOOT_SIZE - ($ - $$) db 0
 
