@@ -13,8 +13,14 @@
 DEBUG_FLAGS = -s -S
 RUN_FLAGS 	= -boot order=c -drive file=boot.img,format=raw -rtc base=localtime
 
-boot.img: boot.s 
+boot.img: boot.bin kernel.bin
+	cat $^ > $@
+
+boot.bin: boot.s 
 	nasm -o $@  -l boot.lst $^
+
+kernel.bin: kernel.s
+	nasm -o $@  -l kernel.lst $^
 
 run: boot.img
 	qemu-system-i386 $(RUN_FLAGS)
@@ -23,7 +29,7 @@ debug: boot.img
 	qemu-system-i386 $(RUN_FLAGS) $(DEBUG_FLAGS)
 
 clean: 
-	rm -f boot.img boot.lst
+	rm -f *.bin *.lst *.img
 
 .PHONY: clean
 

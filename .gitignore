@@ -1,2 +1,3 @@
 *.img
-boot.lst
+*.lst
+*.bin
