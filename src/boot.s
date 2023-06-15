@@ -210,12 +210,30 @@ stage_5:
     call reboot
 
 .L0:
-    ; 処理の終わり
-    jmp $
+    ; 次のステージにジャンプ
+    jmp stage_6
 
 .s0		db	"5th stage...", 0x0A, 0x0D, 0
 .e0		db	" Failure load kernel...", 0x0A, 0x0D, 0
 
+stage_6:
+    cdecl puts, .s0
+
+.L0:
+    mov ah, 0x00
+    int 0x16                    ; キー入力を待つ
+    cmp al, ' '                 
+    jne .L0                     ; SPACEが入力されるまで繰り返す
+
+    mov ax, 0x0012              ; グラフィックスモード(640x480)
+    int 0x10                    ; ビデオモードの切り替え
+    
+    ; 処理の終了
+    jmp $ 
+
+.s0		db	"6th stage...", 0x0A, 0x0D, 0x0A, 0x0D
+		db	" [Push SPACE key to protect mode...]", 0x0A, 0x0D, 0
+    
     ; padding
     times BOOT_SIZE - ($ - $$) db 0
 
