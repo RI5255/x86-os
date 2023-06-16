@@ -228,12 +228,66 @@ stage_6:
     mov ax, 0x0012              ; グラフィックスモード(640x480)
     int 0x10                    ; ビデオモードの切り替え
     
-    ; 処理の終了
-    jmp $ 
+    ; 次のステージにジャンプ
+    jmp stage_7
 
 .s0		db	"6th stage...", 0x0A, 0x0D, 0x0A, 0x0D
 		db	" [Push SPACE key to protect mode...]", 0x0A, 0x0D, 0
-    
+
+    ; GDT
+ALIGN 4, db 0
+GDT:			dq	0x00_0_0_0_0_000000_0000	; NULL
+.cs:			dq	0x00_C_F_9_A_000000_FFFF	; CODE
+.ds:			dq	0x00_C_F_9_2_000000_FFFF	; DATA
+.gdt_end:
+
+    ; セレクタ
+SEL_CODE equ .cs - GDT
+SEL_DATA equ .ds - GDT
+
+    ; GDTR
+GDTR:   dw GDT.gdt_end - GDT - 1    ; GDTのリミット
+        dd GDT                      ; GDTのベース
+
+    ; IDT(とりあえず空)     
+IDTR:   dw 0                        ; IDTのリミット
+        dd 0                        ; IDTのベース
+
+stage_7:
+    cli                             ; 割り込み禁止
+    lgdt [GDTR]
+    lidt [IDTR]
+
+    mov eax, cr0 
+    or ax, 1                        ; PE=1に設定
+    mov cr0, eax
+
+    jmp $ + 2                       ; 先読みしたコードを破棄(?)
+
+[BITS 32]
+    DB 0x66                         ; オペランドサイズオーバーライドプレフィックス
+    jmp SEL_CODE:CODE_32
+
+    ; 32bitプロテクトモード
+CODE_32:
+    ; セレクタを初期化
+    mov ax, SEL_DATA
+    mov ds, ax
+    mov es, ax
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax
+
+    ; カーネルを上位アドレスにコピー
+    mov ecx, (KERNEL_SIZE) / 4      ; 4バイト単位でコピー
+    mov esi, BOOT_END
+    mov edi, KERNEL_LOAD
+    cld
+    rep movsd 
+
+    ; カーネルにジャンプ
+    jmp KERNEL_LOAD
+
     ; padding
     times BOOT_SIZE - ($ - $$) db 0
 
