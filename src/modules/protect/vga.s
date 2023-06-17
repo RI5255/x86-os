@@ -50,7 +50,7 @@ vram_font_copy:
     push edi 
     push esi 
 
-    mov esi, [ebp + 8]               ; フォントアドレス
+    mov esi, [ebp + 8]              ; フォントアドレス
     mov edi, [ebp + 12]             ; VRAMのアドレス 
     movzx eax, byte [ebp + 16]      ; 出力プレーン 
     movzx ebx, word [ebp + 20]      ; 描画色(bh=背景色, bl=前景色)
