@@ -61,14 +61,14 @@ itoa:
     jne .L5
     mov al, '0'             ; フラグが1なら'0'で埋める。
 .L5:
-    std                     ; DF = 0
+    std                     ; DF = 1
     rep stosb
 
 .L6:
     pop si 
     pop di
     pop bx 
-    mov bp, sp 
+    mov sp, bp 
     pop bp 
     ret
 
