@@ -93,6 +93,47 @@ vram_font_copy:
     pop ebp 
     ret
 
+; vram_bit_copy(bit, vram , plane, color)
+; bit:  bit pattern(1byte)
+; vram: VRAMのアドレス 
+; flag: 出力プレーン
+; color: 表示色(この関数では前景色のみ指定する)
+
+vram_bit_copy:
+    push ebp 
+    mov ebp, esp
+
+    push ebx 
+    push edi 
+    push esi
+
+    mov edi, [ebp + 12]         ; VRAMのアドレス 
+    movzx eax, byte [ebp + 16]  ; プレーンの選択
+    movzx ebx, word [ebp + 20]  ; 表示色
+
+    test bl, al
+    setz bl                     ; 表示色と出力プレーンが違ったら1
+    dec bl                      ; 表示色と出力プレーンが同じなら0xff違ったら0x00
+
+    mov al, [ebp + 8]           ; bit pattern
+    mov ah, al 
+    not ah                      ; 背景用のbit pattern
+
+    and ah, [edi]               ; 背景用のbit pattern
+    and al, bl                  ; 前景用のbit pattern
+    or al, ah                   ; 書き込むbit pattern
+
+    mov [edi], al
+
+    pop esi 
+    pop edi 
+    pop ebx
+
+    mov esp, ebp 
+    pop ebp 
+    ret
+
+
 
 
 
