@@ -16,6 +16,8 @@ kernel:
 
     cdecl draw_str, 14, 25, 0x010f, .s0
 
+    cdecl draw_color_bar, 4, 63
+
     ; 処理の終わり
     jmp $
 
@@ -28,6 +30,8 @@ FONT_ADDR:  dd 0
 %include "./modules/protect/draw_char.s" 
 %include "./modules/protect/draw_font.s"
 %include "./modules/protect/draw_str.s"
+%include "./modules/protect/draw_color_bar.s"
+
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
