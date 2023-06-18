@@ -14,8 +14,12 @@ kernel:
 
     cdecl draw_font, 13, 63             ; BIOSのフォントデータを表示
 
+    cdecl draw_str, 14, 25, 0x010f, .s0
+
     ; 処理の終わり
     jmp $
+
+.s0:    db " Hello, Kernel! ", 0
 
 ALIGN 4, db 0
 FONT_ADDR:  dd 0
@@ -23,6 +27,7 @@ FONT_ADDR:  dd 0
 %include "./modules/protect/vga.s"
 %include "./modules/protect/draw_char.s" 
 %include "./modules/protect/draw_font.s"
+%include "./modules/protect/draw_str.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
