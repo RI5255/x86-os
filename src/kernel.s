@@ -26,6 +26,11 @@ kernel:
 	cdecl draw_rect, 400, 250, 150, 150, 0x05
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
 
+    ; 割り込みハンドラを呼び出してみる
+    push 0x11223344
+    pushf
+    call 0x8:int_default
+
 .L0:
     ; 時刻を表示　
     cdecl rtc_get_time, RTC_TIME
@@ -54,5 +59,7 @@ RTC_TIME:	dd	0
 %include "./modules/protect/itoa.s" 
 %include "./modules/protect/rtc.s"
 %include "./modules/protect/draw_time.s"
+%include "./modules/interrupt.s"
+
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
