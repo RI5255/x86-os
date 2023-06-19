@@ -1,13 +1,32 @@
-int_default:
-    pushf
-    push cs
-    push int_stop
+ALIGN 4
+IDTR:   dw  8 * 256 - 1
+        dd  VECT_BASE
 
-    mov eax, .s0
-    iret
+; 割り込みハンドラを登録する
+init_int:
+    push ebx
+    push edi 
 
-.s0		db	" <    STOP    > ", 0
+    lea eax, [int_default]
+    mov ebx, 0x0008_8e00    ; セグメントセレクタ=8, P=1, DPL=0, DT=0, タイプ=0xe
+    xchg ax, bx             ; eax:ebxが割り込みゲートディスクリプタになる
 
+    mov ecx, 256 
+    mov edi, VECT_BASE
+.L0:
+    mov [edi], ebx
+    mov [edi + 4], eax
+    add edi, 8
+    loop .L0
+
+    lidt [IDTR]
+
+    pop edi 
+    pop ebx 
+
+    ret
+
+; スタックに積まれている値を表示して無限ループ
 int_stop:
     cdecl draw_str, 15, 25, 0x060f, eax
 
@@ -38,3 +57,25 @@ int_stop:
 .p3		db	"________ ", 0
 .s4		db	"   +12:"
 .p4		db	"________ ", 0
+
+; デフォルトの割り込みハンドラ(int_stopを呼び出す)
+int_default:
+    pushf
+    push cs
+    push int_stop
+
+    mov eax, .s0
+    iret
+
+.s0		db	" <    STOP    > ", 0
+
+; ゼロ除算用の割り込みハンドラ
+int_zero_div:
+    pushf
+    push cs
+    push int_stop
+
+    mov eax, .s0
+    iret
+
+.s0		db	" <    ZERO DIV    > ", 0

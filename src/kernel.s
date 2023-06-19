@@ -12,6 +12,12 @@ kernel:
     add eax, ebx
     mov [FONT_ADDR], eax                ; フォントのアドレスを保存
 
+    ; IDTを初期化してIDTRを設定　
+    cdecl init_int
+
+    ; ゼロ除算割り込みのハンドラを登録
+    set_vect 0x00, int_zero_div
+    
     ; BIOSのフォントデータを表示
     cdecl draw_font, 13, 63
 
@@ -27,9 +33,8 @@ kernel:
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
 
     ; 割り込みハンドラを呼び出してみる
-    push 0x11223344
-    pushf
-    call 0x8:int_default
+    mov al, 0
+    div al
 
 .L0:
     ; 時刻を表示　
