@@ -14,19 +14,24 @@ kernel:
 
     ; IDTを初期化してIDTRを設定　
     cdecl init_int
+    
     ; PICを初期化
     cdecl init_pic
     
     ; 割り込みハンドラを登録 
     set_vect 0x00, int_zero_div
+    set_vect 0x20, int_timer
     set_vect 0x21, int_keyboard
     set_vect 0x28, int_rtc
 
     ; RTCの割り込みを有効化
     cdecl rtc_int_en, 0x10
 
+    ; タイマのカウンタをセット
+    cdecl int_en_timer0
+
     ; PICのIMRを設定
-    outp 0x21, 0b1111_1001              ; スレーブPIC, KBCからの割り込みを有効化
+    outp 0x21, 0b1111_1000              ; スレーブPIC, KBC, タイマからの割り込みを有効化
     outp 0xa1, 0b1111_1110              ; RTC空の割り込みを有効化
 
     ; ハードウェア割り込みを有効化
@@ -50,6 +55,8 @@ kernel:
     ; 時刻を表示
     cdecl draw_time, 0, 72, 0x0700, dword [RTC_TIME]
     
+    cdecl draw_rotation_bar
+
     ; リングバッファのデータを読む
     cdecl ring_rd, _KEY_BUFF, .int_key
     cmp eax, 0
@@ -85,6 +92,9 @@ RTC_TIME:	dd	0
 %include "./modules/protect/ring_buff.s"
 %include "./modules/protect/int_keyboard.s"
 %include "./modules/protect/interrupt.s"
+%include "./modules/protect/timer.s"
+%include "./modules/protect/draw_rotation_bar.s"
+%include "./modules/int_timer.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
