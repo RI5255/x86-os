@@ -14,10 +14,23 @@ kernel:
 
     ; IDTを初期化してIDTRを設定　
     cdecl init_int
-
-    ; ゼロ除算割り込みのハンドラを登録
-    set_vect 0x00, int_zero_div
+    ; PICを初期化
+    cdecl init_pic
     
+    ; 割り込みハンドラを登録 
+    set_vect 0x00, int_zero_div
+    set_vect 0x28, int_rtc
+
+    ; RTCの割り込みを有効化
+    cdecl rtc_int_en, 0x10
+
+    ; PICのIMRを設定
+    outp 0x21, 0b1111_1011              ; スレーブPICからの割り込みを有効化
+    outp 0xa1, 0b1111_1110              ; RTC空の割り込みを有効化
+
+    ; ハードウェア割り込みを有効化
+    sti
+
     ; BIOSのフォントデータを表示
     cdecl draw_font, 13, 63
 
@@ -32,15 +45,8 @@ kernel:
 	cdecl draw_rect, 400, 250, 150, 150, 0x05
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
 
-    ; 割り込みハンドラを呼び出してみる
-    mov al, 0
-    div al
-
 .L0:
-    ; 時刻を表示　
-    cdecl rtc_get_time, RTC_TIME
-    cmp eax, 1
-    je .L0
+    ; 時刻を表示
     cdecl draw_time, 0, 72, 0x0700, dword [RTC_TIME]
     jmp .L0
     
@@ -64,6 +70,8 @@ RTC_TIME:	dd	0
 %include "./modules/protect/itoa.s" 
 %include "./modules/protect/rtc.s"
 %include "./modules/protect/draw_time.s"
+%include "./modules/protect/pic.s"
+%include "./modules/protect/int_rtc.s"
 %include "./modules/interrupt.s"
 
     ; padding
