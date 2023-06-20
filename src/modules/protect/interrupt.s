@@ -28,6 +28,8 @@ init_int:
 
 ; スタックに積まれている値を表示して無限ループ
 int_stop:
+    sti
+    
     cdecl draw_str, 15, 25, 0x060f, eax
 
     mov		eax, [esp]

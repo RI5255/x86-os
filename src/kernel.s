@@ -19,13 +19,14 @@ kernel:
     
     ; 割り込みハンドラを登録 
     set_vect 0x00, int_zero_div
+    set_vect 0x21, int_keyboard
     set_vect 0x28, int_rtc
 
     ; RTCの割り込みを有効化
     cdecl rtc_int_en, 0x10
 
     ; PICのIMRを設定
-    outp 0x21, 0b1111_1011              ; スレーブPICからの割り込みを有効化
+    outp 0x21, 0b1111_1001              ; スレーブPIC, KBCからの割り込みを有効化
     outp 0xa1, 0b1111_1110              ; RTC空の割り込みを有効化
 
     ; ハードウェア割り込みを有効化
@@ -48,12 +49,21 @@ kernel:
 .L0:
     ; 時刻を表示
     cdecl draw_time, 0, 72, 0x0700, dword [RTC_TIME]
-    jmp .L0
     
-    ; 処理の終わり
-    jmp $
+    ; リングバッファのデータを読む
+    cdecl ring_rd, _KEY_BUFF, .int_key
+    cmp eax, 0
+    je .L0 
+
+    ; keybordからの入力を表示
+    cdecl draw_key, 29, 2, _KEY_BUFF
+
+    jmp .L0
 
 .s0:    db " Hello, Kernel! ", 0
+
+ALIGN 4, db 0
+.int_key:	dd	0
 
 ALIGN 4, db 0
 FONT_ADDR:  dd 0
@@ -72,7 +82,9 @@ RTC_TIME:	dd	0
 %include "./modules/protect/draw_time.s"
 %include "./modules/protect/pic.s"
 %include "./modules/protect/int_rtc.s"
-%include "./modules/interrupt.s"
+%include "./modules/protect/ring_buff.s"
+%include "./modules/protect/int_keyboard.s"
+%include "./modules/protect/interrupt.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
