@@ -67,13 +67,11 @@ kernel:
     cdecl draw_rect, 100, 100, 200, 200, 0x03
 	cdecl draw_rect, 400, 250, 150, 150, 0x05
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
-
-    ; task1を実行
-    call SS_TASK_1:0
-.L0:
-    ; 時刻を表示
-    cdecl draw_time, 0, 72, 0x0700, dword [RTC_TIME]
     
+.L0:
+    ; task1に切り替える
+    jmp SS_TASK_1:0
+
     cdecl draw_rotation_bar
 
     ; リングバッファのデータを読む
