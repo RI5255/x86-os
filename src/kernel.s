@@ -67,11 +67,8 @@ kernel:
     cdecl draw_rect, 100, 100, 200, 200, 0x03
 	cdecl draw_rect, 400, 250, 150, 150, 0x05
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
-    
-.L0:
-    ; task1に切り替える
-    jmp SS_TASK_1:0
 
+.L0:
     cdecl draw_rotation_bar
 
     ; リングバッファのデータを読む
