@@ -48,4 +48,23 @@ struc ring_buff
     .item   resb    RING_ITEM_SIZE
 endstruc
 
+%macro set_desc 2-*
+    push eax
+    push edi 
+
+    mov edi, %1         ; ディスクリプタアドレス
+    mov eax, %2         ; ベースアドレス
+
+    %if %0 == 3
+        mov [edi], %3   ; リミット
+    %endif
+
+    mov [edi + 2], ax   ; ベース[15:0]
+    shr eax, 16 
+    mov [edi + 4], al   ; ベース[23:16]
+    mov [edi + 7], ah   ; ベース[31:24]
+
+    pop edi 
+    pop eax
+%endmacro 
 

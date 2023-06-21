@@ -11,6 +11,23 @@ kernel:
     movzx ebx, word [esi + 2]           ; オフセット　
     add eax, ebx
     mov [FONT_ADDR], eax                ; フォントのアドレスを保存
+    
+    ; TSSディスクリプタのベースを設定
+    set_desc GDT.tss_0, TSS_0
+	set_desc GDT.tss_1, TSS_1	
+
+    ; LDTディスクリプタのベースとリミットを設定
+    set_desc GDT.ldt, LDT, word LDT_LIMIT
+
+    ; GDTを設定(再設定)
+    lgdt [GDTR]
+
+    ; task1用のスタックを設定
+    mov esp, SP_TASK_0
+
+    ; TRレジスタを設定
+    mov ax, SS_TASK_0
+    ltr ax 
 
     ; IDTを初期化してIDTRを設定　
     cdecl init_int
@@ -51,6 +68,8 @@ kernel:
 	cdecl draw_rect, 400, 250, 150, 150, 0x05
 	cdecl draw_rect, 350, 400, 300, 100, 0x06
 
+    ; task1を実行
+    call SS_TASK_1:0
 .L0:
     ; 時刻を表示
     cdecl draw_time, 0, 72, 0x0700, dword [RTC_TIME]
@@ -76,6 +95,10 @@ ALIGN 4, db 0
 FONT_ADDR:  dd 0
 RTC_TIME:	dd	0
 
+%include "descriptor.s"
+%include "./modules/int_timer.s"
+%include "tasks/task_1.s"
+
 %include "./modules/protect/vga.s"
 %include "./modules/protect/draw_char.s" 
 %include "./modules/protect/draw_font.s"
@@ -94,7 +117,6 @@ RTC_TIME:	dd	0
 %include "./modules/protect/interrupt.s"
 %include "./modules/protect/timer.s"
 %include "./modules/protect/draw_rotation_bar.s"
-%include "./modules/int_timer.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
