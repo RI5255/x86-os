@@ -62,6 +62,8 @@ GDT:			dq	0x0000000000000000			; NULL
 .ldt			dq	0x0000820000000000          ; LDTディスクリプタ
 .tss_0:			dq	0x0000890000000067
 .tss_1:			dq	0x0000890000000067
+.call_gate      dq  0x0000EC0400080000          ; コールゲートディスクリプタ
+
 .end:
 
 CS_KERNEL		equ	.cs_kernel	- GDT
@@ -69,6 +71,7 @@ DS_KERNEL		equ	.ds_kernel	- GDT
 SS_LDT			equ	.ldt		- GDT
 SS_TASK_0		equ	.tss_0		- GDT
 SS_TASK_1		equ	.tss_1		- GDT
+SS_GATE_0       equ .call_gate  - GDT
 
 GDTR:	dw 		GDT.end - GDT - 1
 		dd 		GDT
@@ -77,13 +80,13 @@ GDTR:	dw 		GDT.end - GDT - 1
 LDT:			dq	0x0000000000000000			; NULL
 .cs_task_0:		dq	0x00CF9A000000FFFF			; CODE 4G
 .ds_task_0:		dq	0x00CF92000000FFFF			; DATA 4G
-.cs_task_1:		dq	0x00CF9A000000FFFF			; CODE 4G
-.ds_task_1:		dq	0x00CF92000000FFFF			; DATA 4G
+.cs_task_1:		dq	0x00CFFA000000FFFF			; CODE 4G
+.ds_task_1:		dq	0x00CFF2000000FFFF			; DATA 4G
 .end:
 
 CS_TASK_0		equ	(.cs_task_0 - LDT) | 4
 DS_TASK_0		equ	(.ds_task_0 - LDT) | 4
-CS_TASK_1		equ	(.cs_task_1 - LDT) | 4
-DS_TASK_1		equ	(.ds_task_1 - LDT) | 4
+CS_TASK_1		equ	(.cs_task_1 - LDT) | 4 | 3
+DS_TASK_1		equ	(.ds_task_1 - LDT) | 4 | 3
 
 LDT_LIMIT		equ	.end - LDT - 1

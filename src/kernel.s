@@ -16,6 +16,9 @@ kernel:
     set_desc GDT.tss_0, TSS_0
 	set_desc GDT.tss_1, TSS_1	
 
+    ; コールゲートの設定
+    set_gate GDT.call_gate, call_gate
+
     ; LDTディスクリプタのベースとリミットを設定
     set_desc GDT.ldt, LDT, word LDT_LIMIT
 
@@ -112,6 +115,7 @@ RTC_TIME:	dd	0
 %include "./modules/protect/interrupt.s"
 %include "./modules/protect/timer.s"
 %include "./modules/protect/draw_rotation_bar.s"
+%include "./modules/protect/call_gate.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
