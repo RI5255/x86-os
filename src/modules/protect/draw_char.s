@@ -13,6 +13,10 @@ draw_char:
     push edi
     push esi
 
+    %ifdef USE_TEST_AND_SET
+        cdecl test_and_set, IN_USE
+    %endif
+
     ; 表示文字から文字データのアドレスを計算
     movzx esi, byte [ebp + 20]              ; 文字データ
     shl esi, 4                              ; 文字データは16byte
@@ -46,6 +50,10 @@ draw_char:
     cdecl vga_set_write_plane, 0x01
     cdecl vram_font_copy, esi, edi, 0x01, ebx
 
+    %ifdef USE_TEST_AND_SET
+        mov [IN_USE], dword 0
+    %endif 
+
     pop esi 
     pop edi 
     pop ebx
@@ -53,3 +61,8 @@ draw_char:
     mov esp, ebp 
     pop ebp 
     ret
+
+%ifdef USE_TEST_AND_SET
+ALIGN 4, db 0
+IN_USE:	dd	0
+%endif

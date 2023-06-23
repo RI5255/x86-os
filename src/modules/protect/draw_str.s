@@ -22,7 +22,13 @@ draw_str:
     lodsb                       ; al = *esi++
     cmp al, 0 
     je .L2
-    cdecl draw_char, ebx, edi, ecx, eax
+    
+    %ifdef USE_SYSTEM_CALL
+        int 0x81
+    %else 
+        cdecl draw_char, ebx, edi, ecx, eax
+    %endif
+
     inc edi
     cmp edi, 80
     jl .L1

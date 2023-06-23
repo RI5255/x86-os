@@ -1,3 +1,6 @@
+    %define USE_SYSTEM_CALL
+    %define USE_TEST_AND_SET
+
     %include "./include/define.s"
     %include "./include/macro.s"
 
@@ -43,6 +46,8 @@ kernel:
     set_vect 0x20, int_timer
     set_vect 0x21, int_keyboard
     set_vect 0x28, int_rtc
+    set_vect 0x81, trap_gate_81, word 0xEF00
+    set_vect 0x82, trap_gate_82, word 0xEF00
 
     ; RTCの割り込みを有効化
     cdecl rtc_int_en, 0x10
@@ -116,6 +121,8 @@ RTC_TIME:	dd	0
 %include "./modules/protect/timer.s"
 %include "./modules/protect/draw_rotation_bar.s"
 %include "./modules/protect/call_gate.s"
+%include "./modules/protect/trap_gate.s"
+%include "./modules/protect/test_and_set.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0

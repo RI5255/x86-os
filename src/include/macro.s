@@ -18,6 +18,11 @@
 
     mov edi, VECT_BASE + (%1 * 8)   ; 対応するIDTのエントリアドレス
     mov eax, %2                     ; 割り込みハンドラのアドレス
+
+    %if %0 == 3
+        mov [edi + 4], %3
+    %endif
+    
     mov [edi], ax 
     shr eax, 16
     mov [edi + 6], ax
