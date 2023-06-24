@@ -18,6 +18,7 @@ kernel:
     ; TSSディスクリプタのベースを設定
     set_desc GDT.tss_0, TSS_0
 	set_desc GDT.tss_1, TSS_1	
+    set_desc GDT.tss_2, TSS_2
 
     ; コールゲートの設定
     set_gate GDT.call_gate, call_gate
@@ -43,6 +44,7 @@ kernel:
     
     ; 割り込みハンドラを登録 
     set_vect 0x00, int_zero_div
+    set_vect 0x07, int_nm
     set_vect 0x20, int_timer
     set_vect 0x21, int_keyboard
     set_vect 0x28, int_rtc
@@ -101,6 +103,7 @@ RTC_TIME:	dd	0
 %include "descriptor.s"
 %include "./modules/int_timer.s"
 %include "tasks/task_1.s"
+%include "tasks/task_2.s"
 
 %include "./modules/protect/vga.s"
 %include "./modules/protect/draw_char.s" 
@@ -123,6 +126,8 @@ RTC_TIME:	dd	0
 %include "./modules/protect/call_gate.s"
 %include "./modules/protect/trap_gate.s"
 %include "./modules/protect/test_and_set.s"
+%include "./modules/protect/int_nm.s"
+%include "./modules/protect/wait_tick.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0

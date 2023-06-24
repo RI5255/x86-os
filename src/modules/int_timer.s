@@ -16,11 +16,16 @@ int_timer:
     str ax      ; TRレジスタを取得
     cmp ax, SS_TASK_0
     je .L0
+    cmp ax, SS_TASK_1
+    je .L1
     jmp SS_TASK_0:0
-    jmp .L1
+    jmp .L2
 .L0:
     jmp SS_TASK_1:0
+    jmp .L2
 .L1:
+    jmp SS_TASK_2:0
+.L2:
     pop es 
     pop ds 
     popa
