@@ -72,7 +72,14 @@ draw_line:
 .L6:
     ; 線を描画
     push ecx
+%ifdef USE_SYSTEM_CALL
+    mov ebx, dword [ebp - 8]
+    mov edi, dword [ebp - 20]
+    mov ecx, dword [ebp + 24]
+    int 0x82
+%else
     cdecl draw_pixel, dword [ebp - 8], dword [ebp - 20], dword [ebp + 24]
+%endif
     pop ecx
 
     ; 座標を更新
