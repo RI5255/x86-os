@@ -7,7 +7,7 @@ TSS_0:
 .ss1:			dd	0
 .esp2:			dd	0
 .ss2:			dd	0
-.cr3:			dd	0
+.cr3:			dd	CR3_BASE
 .eip:			dd	0
 .eflags:		dd	0
 .eax:			dd	0
@@ -35,7 +35,7 @@ TSS_1:
 .ss1:			dd	0
 .esp2:			dd	0
 .ss2:			dd	0
-.cr3:			dd	0
+.cr3:			dd	CR3_BASE
 .eip:			dd	task_1
 .eflags:		dd	0x0202
 .eax:			dd	0
@@ -63,7 +63,7 @@ TSS_2:
 .ss1:			dd	0
 .esp2:			dd	0
 .ss2:			dd	0
-.cr3:			dd	0
+.cr3:			dd	CR3_BASE
 .eip:			dd	task_2
 .eflags:		dd	0x0202
 .eax:			dd	0
@@ -92,7 +92,7 @@ TSS_3:
 .ss1:			dd	0
 .esp2:			dd	0
 .ss2:			dd	0
-.cr3:			dd	0
+.cr3:			dd	CR3_BASE
 .eip:			dd	task_3
 .eflags:		dd	0x0202
 .eax:			dd	0

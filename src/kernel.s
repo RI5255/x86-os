@@ -39,7 +39,10 @@ kernel:
 
     ; IDTを初期化してIDTRを設定　
     cdecl init_int
-    
+
+    ; ページディレクトリ、ページテーブルを設定
+    cdecl init_page
+
     ; PICを初期化
     cdecl init_pic
     
@@ -61,6 +64,16 @@ kernel:
     ; PICのIMRを設定
     outp 0x21, 0b1111_1000              ; スレーブPIC, KBC, タイマからの割り込みを有効化
     outp 0xa1, 0b1111_1110              ; RTC空の割り込みを有効化
+
+    ; CR3にページディレクトリのアドレスを設定
+    mov eax, CR3_BASE
+    mov cr3, eax
+
+    ; CR0のPEビットを1にしてページングを有効化
+    mov eax, cr0
+    or eax, (1 << 31)
+    mov cr0, eax 
+    jmp $+2
 
     ; ハードウェア割り込みを有効化
     sti
@@ -102,6 +115,7 @@ FONT_ADDR:  dd 0
 RTC_TIME:	dd	0
 
 %include "descriptor.s"
+%include "./modules/paging.s"
 %include "./modules/int_timer.s"
 %include "tasks/task_1.s"
 %include "tasks/task_2.s"
