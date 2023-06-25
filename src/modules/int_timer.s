@@ -20,18 +20,33 @@ int_timer:
     je .L1
     cmp ax, SS_TASK_2
     je .L2
+    cmp ax, SS_TASK_3
+    je .L3
+    cmp ax, SS_TASK_4
+    je .L4
+    cmp ax, SS_TASK_5
+    je .L5
     jmp SS_TASK_0:0
-    jmp .L3
+    jmp .L6
 .L0:
     jmp SS_TASK_1:0
-    jmp .L3
+    jmp .L6
 .L1:
     jmp SS_TASK_2:0
-    jmp .L3
+    jmp .L6
 .L2:
     jmp SS_TASK_3:0
-    jmp .L3
+    jmp .L6
 .L3:
+    jmp SS_TASK_4:0
+    jmp .L6
+.L4:
+    jmp SS_TASK_5:0
+    jmp .L6
+.L5:
+    jmp SS_TASK_6:0
+    jmp .L6 
+.L6:
     pop es 
     pop ds 
     popa

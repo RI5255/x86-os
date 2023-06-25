@@ -20,6 +20,9 @@ kernel:
 	set_desc GDT.tss_1, TSS_1	
     set_desc GDT.tss_2, TSS_2
     set_desc GDT.tss_3, TSS_3
+    set_desc GDT.tss_4, TSS_4
+    set_desc GDT.tss_5, TSS_5
+    set_desc GDT.tss_6, TSS_6
 
     ; コールゲートの設定
     set_gate GDT.call_gate, call_gate
@@ -89,9 +92,9 @@ kernel:
     cdecl draw_color_bar, 4, 63
 
     ; 短形を表示
-    cdecl draw_rect, 100, 100, 200, 200, 0x03
-	cdecl draw_rect, 400, 250, 150, 150, 0x05
-	cdecl draw_rect, 350, 400, 300, 100, 0x06
+    ;cdecl draw_rect, 100, 100, 200, 200, 0x03
+	;cdecl draw_rect, 400, 250, 150, 150, 0x05
+	;cdecl draw_rect, 350, 400, 300, 100, 0x06
 
 .L0:
     cdecl draw_rotation_bar

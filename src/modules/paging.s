@@ -33,7 +33,20 @@ page_set_4m:
 
 init_page:
     cdecl page_set_4m, CR3_BASE
+    cdecl page_set_4m, CR3_TASK_4
+    cdecl page_set_4m, CR3_TASK_5
+    cdecl page_set_4m, CR3_TASK_6
 
     ; 0x0010_7000に対応するページテーブルエントリのPを0にする
     mov [CR3_BASE + 0x1000 + 0x107 * 4], dword 0
+
+    ; 0x0010_7000に対応するページテーブルエントリだけ書き変える
+    mov [CR3_TASK_4 + 0x1000 + 0x107 * 4], dword PARAM_TASK_4 + 7
+    mov [CR3_TASK_5 + 0x1000 + 0x107 * 4], dword PARAM_TASK_5 + 7
+    mov [CR3_TASK_6 + 0x1000 + 0x107 * 4], dword PARAM_TASK_6 + 7
+
+    cdecl memcpy, PARAM_TASK_4, DRAW_PARAM.t4, rose_size
+    cdecl memcpy, PARAM_TASK_5, DRAW_PARAM.t5, rose_size 
+    cdecl memcpy, PARAM_TASK_6, DRAW_PARAM.t6, rose_size 
+    
     ret

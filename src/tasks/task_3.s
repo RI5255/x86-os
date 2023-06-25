@@ -104,11 +104,12 @@ task_3:
 
 ALIGN 4, db 0
 DRAW_PARAM:
+.t3:
 	istruc	rose
-		at	rose.x0,		dd		 16
+		at	rose.x0,		dd		 32
 		at	rose.y0,		dd		 32
-		at	rose.x1,		dd		416
-		at	rose.y1,		dd		432
+		at	rose.x1,		dd		208
+		at	rose.y1,		dd		208
 
 		at	rose.n,			dd		2
 		at	rose.d,			dd		1
@@ -121,7 +122,66 @@ DRAW_PARAM:
 		at	rose.color_b,	dd		0x0003
 
 		at	rose.title,		db		"Task-3", 0
+	iend
 
+.t4:
+    istruc	rose
+		at	rose.x0,		dd		248
+		at	rose.y0,		dd		 32
+		at	rose.x1,		dd		424
+		at	rose.y1,		dd		208
+
+		at	rose.n,			dd		3
+		at	rose.d,			dd		1
+
+		at	rose.color_x,	dd		0x0007
+		at	rose.color_y,	dd		0x0007
+		at	rose.color_z,	dd		0x000F
+		at	rose.color_s,	dd		0x040F
+		at	rose.color_f,	dd		0x000F
+		at	rose.color_b,	dd		0x0004
+
+		at	rose.title,		db		"Task-4", 0
+	iend
+
+.t5:
+    istruc	rose
+		at	rose.x0,		dd		 32
+		at	rose.y0,		dd		272
+		at	rose.x1,		dd		208
+		at	rose.y1,		dd		448
+
+		at	rose.n,			dd		2
+		at	rose.d,			dd		6
+
+		at	rose.color_x,	dd		0x0007
+		at	rose.color_y,	dd		0x0007
+		at	rose.color_z,	dd		0x000F
+		at	rose.color_s,	dd		0x050F
+		at	rose.color_f,	dd		0x000F
+		at	rose.color_b,	dd		0x0005
+
+		at	rose.title,		db		"Task-5", 0
+	iend
+
+.t6:
+    istruc	rose
+		at	rose.x0,		dd		248
+		at	rose.y0,		dd		272
+		at	rose.x1,		dd		424
+		at	rose.y1,		dd		448
+
+		at	rose.n,			dd		4
+		at	rose.d,			dd		6
+
+		at	rose.color_x,	dd		0x0007
+		at	rose.color_y,	dd		0x0007
+		at	rose.color_z,	dd		0x000F
+		at	rose.color_s,	dd		0x060F
+		at	rose.color_f,	dd		0x000F
+		at	rose.color_b,	dd		0x0006
+
+		at	rose.title,		db		"Task-6", 0
 	iend
 
 ; fpu_rose_init(A, n, d)
