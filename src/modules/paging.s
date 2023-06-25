@@ -33,4 +33,7 @@ page_set_4m:
 
 init_page:
     cdecl page_set_4m, CR3_BASE
+
+    ; 0x0010_7000に対応するページテーブルエントリのPを0にする
+    mov [CR3_BASE + 0x1000 + 0x107 * 4], dword 0
     ret

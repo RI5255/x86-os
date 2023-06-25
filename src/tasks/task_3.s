@@ -7,8 +7,9 @@ task_3:
     push dword 0    ; -16:  y
     push dword 0    ; -20:  r
 
-    mov esi, DRAW_PARAM
-
+    ;mov esi, DRAW_PARAM
+    mov esi, 0x0010_7000
+    
     ; タイトルを表示
     mov eax, [esi + rose.x0]
     mov ebx, [esi + rose.y0]

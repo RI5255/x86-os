@@ -49,6 +49,7 @@ kernel:
     ; 割り込みハンドラを登録 
     set_vect 0x00, int_zero_div
     set_vect 0x07, int_nm
+    set_vect 0x0e, int_pf
     set_vect 0x20, int_timer
     set_vect 0x21, int_keyboard
     set_vect 0x28, int_rtc
@@ -117,6 +118,8 @@ RTC_TIME:	dd	0
 %include "descriptor.s"
 %include "./modules/paging.s"
 %include "./modules/int_timer.s"
+%include "./modules/int_pf.s"
+
 %include "tasks/task_1.s"
 %include "tasks/task_2.s"
 %include "tasks/task_3.s"
@@ -144,6 +147,7 @@ RTC_TIME:	dd	0
 %include "./modules/protect/test_and_set.s"
 %include "./modules/protect/int_nm.s"
 %include "./modules/protect/wait_tick.s"
+%include "./modules/protect/memcpy.s"
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
