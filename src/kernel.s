@@ -154,3 +154,6 @@ RTC_TIME:	dd	0
 
     ; padding
     times KERNEL_SIZE - ($ -$$) db 0
+
+    %include "fat.s"
+    

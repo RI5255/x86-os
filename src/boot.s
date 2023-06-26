@@ -3,9 +3,29 @@
 
     ORG BOOT_LOAD
 
+; BPB(Boot Parameter Block)
 entry:
     jmp ipl
-    times 90 - ($ - $$) db 0x90     ; BPB(Boot Parameter Block)
+    times	3 - ($ - $$) db 0x90
+    db		'OEM-NAME'
+    dw		512
+    db		1
+    dw		32
+    db		2
+    dw		512
+    dw		0xFFF0
+    db		0xF8
+    dw		256
+    dw		0x10
+    dw		2
+    dd		0
+    dd		0
+    db		0x80
+    db		0
+    db		0x29
+    dd		0xbeef
+    db		'BOOTABLE   '
+    db		'FAT16   '
 
 ; IPL(Initial Program Loader)
 ipl:
