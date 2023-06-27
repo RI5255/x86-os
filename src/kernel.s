@@ -107,6 +107,17 @@ kernel:
     ; keybordからの入力を表示
     cdecl draw_key, 29, 2, _KEY_BUFF
 
+    ; '1'が押されたらファイル読み出しを実行
+    mov al, [.int_key]
+    cmp al, 0x2 
+    jne .L0
+
+    call dword [BOOT_LOAD + BOOT_SIZE - 16]
+
+    mov esi, 0x7800 
+    mov [esi + 32], byte 0
+    cdecl draw_str, 0, 0, 0x0f04, esi
+
     jmp .L0
 
 .s0:    db " Hello, Kernel! ", 0

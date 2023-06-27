@@ -84,6 +84,7 @@ ACPI_DATA:
 %include "./modules/real/kbc.s"
 %include "./modules/real/lba_chs.s"
 %include "./modules/real/read_lba.s"
+%include "./modules/real/memcpy.s"
 
 stage_2:
     cdecl puts, .s0
@@ -254,6 +255,13 @@ stage_6:
 .s0		db	"6th stage...", 0x0A, 0x0D, 0x0A, 0x0D
 		db	" [Push SPACE key to protect mode...]", 0x0A, 0x0D, 0
 
+read_file:
+    cdecl memcpy, 0x7800, .s0, .s1 - .s0
+    ret
+
+.s0:	db		'File not found.', 0
+.s1:
+
     ; GDT
 ALIGN 4, db 0
 GDT:			dq	0x00_0_0_0_0_000000_0000	; NULL
@@ -308,7 +316,89 @@ CODE_32:
     ; カーネルにジャンプ
     jmp KERNEL_LOAD
 
-    ; padding
+    ; リアルモードへの移行プログラム
+TO_REAL_MODE:
+    push ebp
+    mov ebp, esp 
+
+    cli 
+    mov eax, cr0
+    mov [.cr0_saved], eax 
+    mov [.esp_saved], esp
+    sidt [.idtr_save]       ; プロテクトモードのIDTREを保存
+    lidt [.idtr_real]       ; リアルモードのIDTRを設定
+
+    ; 16bitプロテクトモードに移行
+    jmp 0x0018:.bit16
+
+[BITS 16]
+.bit16: 
+    mov ax, 0x20
+    mov ds, ax
+    mov es, ax 
+    mov ss, ax
+
+    ; 16bitリアルモードに移行
+    mov eax, cr0 
+    and eax, 0x7FFF_FFFE    ; PG(Paging)とPE(Protect Mode Enable)を0にセット
+    mov cr0, eax
+    jmp $ + 2
+
+    jmp 0:.real             ; cs = 0
+.real:
+    mov ax, 0
+    mov ds, ax 
+    mov es, ax 
+    mov ss, ax
+    mov sp, 0x7c00
+
+    cdecl read_file
+
+    ; 16bitプロテクトモードに移行
+    mov eax, cr0
+    or eax, 1               ; PEを1にセット
+    mov cr0, eax 
+    jmp $ + 2 
+
+    ; 32bitプロテクトモードへ移行
+    db 0x66
+[BITS 32]
+    jmp 0x8:.bit32
+.bit32:
+    mov ax, 0x10
+    mov ds, ax 
+    mov es, ax
+    mov ss, ax
+
+    mov esp, [.esp_saved]
+    mov eax, [.cr0_saved]
+    mov cr0, eax 
+    lidt [.idtr_save]
+
+    sti
+
+    mov esp, ebp 
+    pop ebp 
+    ret
+
+.idtr_real:
+    dw  0x3fff
+    dd  0
+
+.idtr_save:
+    dw  0 
+    dd  0 
+
+.cr0_saved:
+    dd  0
+
+.esp_saved:
+    dd 0
+
+    times BOOT_SIZE - ($ - $$) - 16	db	0
+
+	dd 		TO_REAL_MODE		
+    
     times BOOT_SIZE - ($ - $$) db 0
 
 
