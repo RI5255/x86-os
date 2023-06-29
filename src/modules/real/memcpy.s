@@ -7,10 +7,11 @@ memcpy:
     mov bp, sp
     push di 
     push si
+    cld
     mov di, [bp + 4]
     mov si, [bp + 6]
     mov cx, [bp + 8]
-    cld
+    
     rep movsb
     pop si 
     pop di

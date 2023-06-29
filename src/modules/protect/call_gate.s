@@ -17,7 +17,7 @@ call_gate:
     cdecl draw_str, eax, ebx, ecx, edx
 
     pop es 
-    pop dx
+    pop ds
     pop ebx
 
     mov esp, ebp 

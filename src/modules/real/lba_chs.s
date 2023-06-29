@@ -4,6 +4,7 @@ lba_chs:
     push bp 
     mov bp, sp 
 
+    push bx
     push di
     push si 
     
@@ -14,7 +15,7 @@ lba_chs:
     mul byte [si + drive.sect]  ; 最大セクタ数(トラックあたりのセクタ数)
     mov bx, ax                  ; シリンダあたりのセクタ数
     mov dx, 0
-    mov ax, [bp + 8]    ; LBA
+    mov ax, [bp + 8]            ; LBA
     div bx                      ; r/m16の場合、dx:axをオペランドで割った商がaxに、余りがdxに入る
     mov [di + drive.cyln], ax   ; シリンダ番号
     mov ax, dx
@@ -27,6 +28,8 @@ lba_chs:
 
     pop si 
     pop di 
+    pop bx
+    
     mov sp, bp 
     pop bp 
     ret

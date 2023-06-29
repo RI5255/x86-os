@@ -13,9 +13,9 @@ draw_char:
     push edi
     push esi
 
-    %ifdef USE_TEST_AND_SET
-        cdecl test_and_set, IN_USE
-    %endif
+%ifdef USE_TEST_AND_SET
+    cdecl test_and_set, IN_USE
+%endif
 
     ; 表示文字から文字データのアドレスを計算
     movzx esi, byte [ebp + 20]              ; 文字データ
@@ -50,9 +50,9 @@ draw_char:
     cdecl vga_set_write_plane, 0x01
     cdecl vram_font_copy, esi, edi, 0x01, ebx
 
-    %ifdef USE_TEST_AND_SET
-        mov [IN_USE], dword 0
-    %endif 
+%ifdef USE_TEST_AND_SET
+    mov [IN_USE], dword 0
+%endif 
 
     pop esi 
     pop edi 

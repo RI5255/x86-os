@@ -85,6 +85,7 @@ ACPI_DATA:
 %include "./modules/real/lba_chs.s"
 %include "./modules/real/read_lba.s"
 %include "./modules/real/memcpy.s"
+%include "./modules/real/memcmp.s"
 
 stage_2:
     cdecl puts, .s0
@@ -256,11 +257,78 @@ stage_6:
 		db	" [Push SPACE key to protect mode...]", 0x0A, 0x0D, 0
 
 read_file:
+    push bx 
+
     cdecl memcpy, 0x7800, .s0, .s1 - .s0
+
+    mov bx, 32 + 256 + 256              ; ディレクリエントリの先頭セクタ
+    mov cx, 32                          ; 最大32セクタ
+
+.L0:
+    push cx
+    cdecl read_lba, BOOT, bx, 1, 0x7600 ; ルートディレクリを読み出す
+    pop cx
+
+    cmp ax, 0                           ; 読み出しに失敗した場合は終了
+    je .L2
+
+    push cx 
+    cdecl fat_find_file
+    pop cx
+
+    cmp ax, 0
+    je .L1 
+
+    add ax, 32 + 256 + 256 + 32 - 2     ; 絶対セクタ番号に変換
+
+    cdecl read_lba, BOOT, ax, 1, 0x7800
+    jmp .L2
+
+.L1:
+    inc bx 
+    loop .L0 
+
+.L2:
+    pop bx
     ret
 
 .s0:	db		'File not found.', 0
 .s1:
+
+fat_find_file:
+    push bx
+    push si 
+
+    cld
+    mov bx, 0
+    mov cx, 16                      ; 1セクタあたり16エントリ
+    mov si, 0x7600                  ; ディレクリエントリの先頭
+
+.L0:
+    and [si + 11], byte 0x18
+    jnz .L1                         ; ボリューム情報かディレクトリだった場合はスキップ
+    
+    push cx
+    cdecl memcmp, si, .s0, 8 + 3    ; ファイル名を比較
+    pop cx
+
+    cmp ax, 0
+    jne .L1
+
+    mov bx, word [si + 0x1a]        ; 先頭クラスタ番号
+    jmp .L2
+
+.L1:
+    add si, 32
+    loop .L0
+
+.L2:
+    mov ax, bx
+    pop si 
+    pop bx
+    ret 
+
+.s0:	db		'SPECIAL TXT', 0
 
     ; GDT
 ALIGN 4, db 0
@@ -325,7 +393,7 @@ TO_REAL_MODE:
     mov eax, cr0
     mov [.cr0_saved], eax 
     mov [.esp_saved], esp
-    sidt [.idtr_save]       ; プロテクトモードのIDTREを保存
+    sidt [.idtr_save]       ; プロテクトモードのIDTRを保存
     lidt [.idtr_real]       ; リアルモードのIDTRを設定
 
     ; 16bitプロテクトモードに移行
@@ -352,7 +420,39 @@ TO_REAL_MODE:
     mov ss, ax
     mov sp, 0x7c00
 
+    ; 割り込みの設定(リアルモード用)
+    outp 0x20, 0x11             ; ICW1  
+    outp 0x21, 0x8              ; ICW2 
+    outp 0x21, 0x4              ; ICW3 
+    outp 0x21, 0x1              ; ICW4 
+
+    outp 0xa0, 0x11             ; ICW1  
+    outp 0xa1, 0x10             ; ICW2 
+    outp 0xa1, 0x2              ; ICW3 
+    outp 0xa1, 0x1              ; ICW4 
+
+    outp 0x21, 0b_1011_1000     ; フロッピ―ディスク制御,スレーブ,キーボード,タイマーの割り込みを有効化
+	outp 0xa1, 0b_1011_1110     ; ハードディスク制御の割り込みを有効化
+
+    sti
+
     cdecl read_file
+
+    ; 割り込みの設定(プロテクトモード用)
+    cli 
+
+    outp 0x20, 0x11             ; ICW1  
+    outp 0x21, 0x20             ; ICW2 
+    outp 0x21, 0x4              ; ICW3 
+    outp 0x21, 0x1              ; ICW4 
+
+    outp 0xa0, 0x11             ; ICW1  
+    outp 0xa1, 0x28             ; ICW2 
+    outp 0xa1, 0x2              ; ICW3 
+    outp 0xa1, 0x1              ; ICW4 
+
+    outp 0x21, 0b_1111_1000     ; スレーブ, KBC, タイマーの割り込みを有効化
+	outp 0xA1, 0b_1111_1110     ; RTCの割り込みを有効化
 
     ; 16bitプロテクトモードに移行
     mov eax, cr0
@@ -382,7 +482,7 @@ TO_REAL_MODE:
     ret
 
 .idtr_real:
-    dw  0x3fff
+    dw  0x3ff
     dd  0
 
 .idtr_save:

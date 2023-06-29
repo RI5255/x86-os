@@ -7,19 +7,19 @@ memcmp:
     mov bp, sp
     push di 
     push si 
-    mov di, [bp + 4]
-    mov si, [bp + 6]
+    mov si, [bp + 4]
+    mov di, [bp + 6]
     mov cx, [bp + 8]
     cld
     repe cmpsb
-    jnz .LF
+    jnz .L0
     mov ax, 0
-    jmp .LE
+    jmp .L1
 
-.LF:
+.L0:
     mov ax, -1
 
-.LE:    
+.L1:    
     pop si 
     pop di
     mov sp, bp 

@@ -67,7 +67,7 @@ kernel:
 
     ; PICのIMRを設定
     outp 0x21, 0b1111_1000              ; スレーブPIC, KBC, タイマからの割り込みを有効化
-    outp 0xa1, 0b1111_1110              ; RTC空の割り込みを有効化
+    outp 0xa1, 0b1111_1110              ; RTCからの割り込みを有効化
 
     ; CR3にページディレクトリのアドレスを設定
     mov eax, CR3_BASE

@@ -17,7 +17,7 @@ read_lba:
 
     pop si 
 
-    mov bp, sp 
+    mov sp, bp 
     pop bp 
     ret
 
